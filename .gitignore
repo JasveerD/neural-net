@@ -1,0 +1,25 @@
+# Build
+build/
+cmake-build-*/
+
+# Binaries
+train
+bench_matmul
+test_matrix
+test_gradients
+test_mnist
+
+# MNIST data (download separately)
+data/
+
+# Checkpoints
+*.bin
+*.ckpt
+
+# macOS
+.DS_Store
+
+# Editor
+compile_commands.json
+.cache/
+.clangd/
