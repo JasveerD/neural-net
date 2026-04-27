@@ -1,7 +1,7 @@
 # neural-net
 
-A neural network library built from scratch in C++20. No PyTorch, no Eigen, no ML frameworks.
-Hand-derived backprop, He initialization, and a clean matrix library with full Rule of 5 compliance.
+A neural network library built from scratch in C++20, without using PyTorch, Eigen, ML frameworks.
+Hand-derived backprop, HE initialization, and a clean matrix library with full Rule of 5 compliance.
 Trains to **97.91% accuracy** on MNIST in 20 epochs.
 
 ## Highlights
