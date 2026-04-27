@@ -35,7 +35,7 @@ template<Numeric T>
 Layer<T>::Layer(size_t in_features, size_t out_features,
         std::function<Matrix<T>(const Matrix<T>&)> activation,
         std::function<Matrix<T>(const Matrix<T>&)> activation_derivative)
-    : weight(Matrix<T>::random(out_features, in_features)),
+    : weight(Matrix<T>::he(out_features, in_features)),
       bias(Matrix<T>::zeros(1, out_features)),
       cached_input(Matrix<T>()),
       pre_activation_cache(Matrix<T>()),

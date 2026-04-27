@@ -14,7 +14,6 @@ public:
 
 	Matrix<T> forward(const Matrix<T>& input);
 	void backward(const Matrix<T>& grad);
-
 };
 
 template <Numeric T>

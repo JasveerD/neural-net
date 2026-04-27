@@ -53,6 +53,7 @@ public:
 	// factories 
 	static Matrix<T> zeros(size_t rows, size_t cols);
 	static Matrix<T> random(size_t rows, size_t cols, T low=0.0, T high=1.0);
+	static Matrix<T> he(size_t rows, size_t cols);
 };
 
 // matrix implimentation --------------------------------------------------------------------------------------------
@@ -246,3 +247,14 @@ Matrix<T> Matrix<T>::random(size_t rows, size_t cols, T low, T high) {
     return res;
 }
 
+template<Numeric T>
+Matrix<T> Matrix<T>::he(size_t rows, size_t cols) {
+    Matrix<T> res(rows, cols);
+    std::random_device rd;
+    std::mt19937 gen(rd());
+    std::normal_distribution<T> dist(0, std::sqrt(static_cast<T>(2) / static_cast<T>(cols)));
+    for (size_t i = 0; i < rows; i++)
+        for (size_t j = 0; j < cols; j++)
+            res(i, j) = dist(gen);
+    return res;
+}
