@@ -6,6 +6,9 @@
 #include <cassert>
 #include <random>
 
+// hardware acceleration 
+#include <Accelerate/Accelerate.h>
+
 template <typename T>
 concept Numeric = std::is_floating_point_v<T>;
 
@@ -179,19 +182,46 @@ Matrix<T> Matrix<T>::operator*(const Matrix<T>& other) const {
 
 // matrix multiplication
 template<Numeric T>
-Matrix<T> Matrix<T>::matmul(const Matrix<T>& other) const{
-	assert(this->cols == other.rows);
-	Matrix<T> res(this->rows, other.cols);
+Matrix<T> Matrix<T>::matmul(const Matrix<T>& other) const {
+    assert(this->cols == other.rows);
+    Matrix<T> res(this->rows, other.cols);
 
-	for(size_t i=0; i<this->rows;i++){
-		for(size_t j=0; j<other.cols; j++){
-			for(size_t k=0; k<this->cols; k++){
-				res(i,j) += (*this)(i,k) * other(k,j);	// dependent on res being 0 initilised | can break
-			}
-		}
-	}
-	return res;
+    if constexpr (std::is_same_v<T, float>) {
+        cblas_sgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
+                    this->rows, other.cols, this->cols,
+                    1.0f,
+                    data.get(), this->cols,
+                    other.data.get(), other.cols,
+                    0.0f,
+                    res.data.get(), other.cols);
+    } else {
+        cblas_dgemm(CblasRowMajor, CblasNoTrans, CblasNoTrans,
+                    this->rows, other.cols, this->cols,
+                    1.0,
+                    data.get(), this->cols,
+                    other.data.get(), other.cols,
+                    0.0,
+                    res.data.get(), other.cols);
+    }
+
+    return res;
 }
+
+// COMMENTED FOR BETTER APPROACH, NOT DELETED TO KEEP ORIGINAL APPROACH FOR TESTING
+// template<Numeric T>
+// Matrix<T> Matrix<T>::matmul(const Matrix<T>& other) const{
+// 	assert(this->cols == other.rows);
+// 	Matrix<T> res(this->rows, other.cols);
+//
+// 	for(size_t i=0; i<this->rows;i++){
+// 		for(size_t j=0; j<other.cols; j++){
+// 			for(size_t k=0; k<this->cols; k++){
+// 				res(i,j) += (*this)(i,k) * other(k,j);	// dependent on res being 0 initilised | can break
+// 			}
+// 		}
+// 	}
+// 	return res;
+// }
 
 // transpose 
 template<Numeric T>

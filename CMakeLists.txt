@@ -37,6 +37,7 @@ add_library(neuralnet
 
 target_include_directories(neuralnet PUBLIC include)
 target_link_libraries(neuralnet PUBLIC ${ACCELERATE_FRAMEWORK})
+target_compile_definitions(neuralnet PUBLIC ACCELERATE_NEW_LAPACK)
 
 if(METAL_FRAMEWORK)
   target_link_libraries(neuralnet PUBLIC ${METAL_FRAMEWORK} ${FOUNDATION_FRAMEWORK})
