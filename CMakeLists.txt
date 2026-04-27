@@ -16,7 +16,7 @@ set(CMAKE_CXX_FLAGS_DEBUG   "-g -O0 -fsanitize=address,undefined")
 find_library(ACCELERATE_FRAMEWORK Accelerate REQUIRED)
 message(STATUS "Accelerate: ${ACCELERATE_FRAMEWORK}")
 
-# ── Metal (stretch goal) ───────────────────────────────────────────────────────
+# ── Metal ─────────────────────────────────────────────────────────────────────
 find_library(METAL_FRAMEWORK      Metal)
 find_library(FOUNDATION_FRAMEWORK Foundation)
 if(METAL_FRAMEWORK)
@@ -35,13 +35,32 @@ add_library(neuralnet
   src/serializer.cpp
 )
 
-target_include_directories(neuralnet PUBLIC include)
+target_include_directories(neuralnet PUBLIC include metal)
 target_link_libraries(neuralnet PUBLIC ${ACCELERATE_FRAMEWORK})
 target_compile_definitions(neuralnet PUBLIC ACCELERATE_NEW_LAPACK)
 
+# ── Metal compute kernel ───────────────────────────────────────────────────────
 if(METAL_FRAMEWORK)
-  target_link_libraries(neuralnet PUBLIC ${METAL_FRAMEWORK} ${FOUNDATION_FRAMEWORK})
-  target_compile_definitions(neuralnet PUBLIC USE_METAL)
+    set(METAL_SRC ${CMAKE_SOURCE_DIR}/metal/matmul.metal)
+    set(METAL_AIR ${CMAKE_BINARY_DIR}/matmul.air)
+    set(METAL_LIB ${CMAKE_BINARY_DIR}/default.metallib)
+
+    add_custom_command(
+        OUTPUT ${METAL_AIR}
+        COMMAND xcrun -sdk macosx metal -c ${METAL_SRC} -o ${METAL_AIR}
+        DEPENDS ${METAL_SRC}
+    )
+    add_custom_command(
+        OUTPUT ${METAL_LIB}
+        COMMAND xcrun -sdk macosx metallib ${METAL_AIR} -o ${METAL_LIB}
+        DEPENDS ${METAL_AIR}
+    )
+    add_custom_target(metal_lib DEPENDS ${METAL_LIB})
+
+    target_sources(neuralnet PRIVATE metal/matmul_metal.mm)
+    add_dependencies(neuralnet metal_lib)
+    target_link_libraries(neuralnet PUBLIC ${METAL_FRAMEWORK} ${FOUNDATION_FRAMEWORK})
+    target_compile_definitions(neuralnet PUBLIC USE_METAL)
 endif()
 
 # ── Executables ───────────────────────────────────────────────────────────────

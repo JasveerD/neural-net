@@ -29,7 +29,7 @@ public:
 	Matrix(const Matrix& other); // copy matrix(matrix other)
 	Matrix(Matrix&& other) noexcept;
 	Matrix& operator=(const Matrix& other); // copy with =
-	Matrix& operator=(Matrix&& other) noexcept;
+	Matrix& operator=(Matrix&& other) noexcept; 
 	~Matrix() = default;
 
 	// element access 
@@ -43,6 +43,9 @@ public:
 	Matrix<T> operator*(const Matrix<T>& other) const;  // elementwise
 	Matrix<T> matmul(const Matrix<T>& other) const;
 	Matrix<T> matmul_naive(const Matrix<T>& other) const;
+	#ifdef USE_METAL
+	Matrix<T> matmul_metal(const Matrix<T>& other) const;
+	#endif
 
 	// transpose 
 	Matrix<T> transpose() const;
@@ -207,6 +210,29 @@ Matrix<T> Matrix<T>::matmul(const Matrix<T>& other) const {
 
     return res;
 }
+
+#ifdef USE_METAL
+#include "matmul_metal.h"
+
+template<Numeric T>
+Matrix<T> Matrix<T>::matmul_metal(const Matrix<T>& other) const {
+    assert(this->cols == other.rows);
+    Matrix<T> res(this->rows, other.cols);
+
+    if constexpr (std::is_same_v<T, float>) {
+        metal_matmul(
+            data.get(),
+            other.data.get(),
+            res.data.get(),
+            this->rows,
+            other.cols,
+            this->cols
+        );
+    }
+
+    return res;
+}
+#endif
 
 // COMMENTED FOR BETTER APPROACH, NOT DELETED TO KEEP ORIGINAL APPROACH FOR TESTING
 template<Numeric T>
