@@ -42,6 +42,7 @@ public:
 	Matrix<T> operator*(T scaler) const;
 	Matrix<T> operator*(const Matrix<T>& other) const;  // elementwise
 	Matrix<T> matmul(const Matrix<T>& other) const;
+	Matrix<T> matmul_naive(const Matrix<T>& other) const;
 
 	// transpose 
 	Matrix<T> transpose() const;
@@ -208,20 +209,20 @@ Matrix<T> Matrix<T>::matmul(const Matrix<T>& other) const {
 }
 
 // COMMENTED FOR BETTER APPROACH, NOT DELETED TO KEEP ORIGINAL APPROACH FOR TESTING
-// template<Numeric T>
-// Matrix<T> Matrix<T>::matmul(const Matrix<T>& other) const{
-// 	assert(this->cols == other.rows);
-// 	Matrix<T> res(this->rows, other.cols);
-//
-// 	for(size_t i=0; i<this->rows;i++){
-// 		for(size_t j=0; j<other.cols; j++){
-// 			for(size_t k=0; k<this->cols; k++){
-// 				res(i,j) += (*this)(i,k) * other(k,j);	// dependent on res being 0 initilised | can break
-// 			}
-// 		}
-// 	}
-// 	return res;
-// }
+template<Numeric T>
+Matrix<T> Matrix<T>::matmul_naive(const Matrix<T>& other) const{
+	assert(this->cols == other.rows);
+	Matrix<T> res(this->rows, other.cols);
+
+	for(size_t i=0; i<this->rows;i++){
+		for(size_t j=0; j<other.cols; j++){
+			for(size_t k=0; k<this->cols; k++){
+				res(i,j) += (*this)(i,k) * other(k,j);	// dependent on res being 0 initilised | can break
+			}
+		}
+	}
+	return res;
+}
 
 // transpose 
 template<Numeric T>
